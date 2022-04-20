@@ -16,7 +16,7 @@ let mut delay = ...; // delay struct from board
 let i2c = ...; // I2C bus to use
 
 let mut device = MicsVz89Te::new(i2c);
-let measurements = device.read_status(&mut delay).unwrap();
+let measurements = device.read_measurements(&mut delay).unwrap();
 
 let co2 = measurements.co2;
 let voc = measurements.voc;
