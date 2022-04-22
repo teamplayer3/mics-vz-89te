@@ -48,9 +48,9 @@ const MICS_VZ_89TE_GET_CALIBR_VAL: u8 = 0x10;
 const MICS_VZ_89TE_SET_CALIBR_PPM: u8 = 0x08;
 
 /// Represents the date of revision of the sensor.
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct RevisionDate {
-    year: u8,
+    pub year: u16,
     pub month: u8,
     pub day: u8,
 }
