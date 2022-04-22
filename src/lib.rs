@@ -13,7 +13,8 @@
 //!
 //! - `std`: Enables error handling with `std::error::Error`.
 //! - `chrono`: Enables compatibility with `chrono::NaiveDate` on struct `RevisionDate`.
-//! - `unproven`: Enables ppm calibration and r0 value retrieving. (Correct functionality couldn't be verified.)
+//! - `unproven`: Enables ppm calibration and r0 value retrieving.
+//! (Correct functionality couldn't be verified.)
 //!
 //! # Example Usage
 //! ```ignore
