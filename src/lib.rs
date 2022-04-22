@@ -26,6 +26,8 @@
 //!
 //! let co2 = measurements.co2;
 //! let voc = measurements.voc;
+//!
+//! let i2c = device.release(); // destruct driver to use bus with other drivers
 //! ```
 
 pub mod error;
