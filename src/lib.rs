@@ -147,10 +147,9 @@ where
 
     fn request_data(
         &mut self,
-        cmd_buffer: &[u8],
+        cmd_buffer: &[u8; 6],
         delay: &mut impl DelayMs<u16>,
     ) -> Result<[u8; 7], PacketParseError<E>> {
-        debug_assert_eq!(cmd_buffer.len(), 6);
         self.i2c
             .write(MICS_VZ_89TE_ADDR, cmd_buffer)
             .map_err(PacketParseError::from)?;
