@@ -124,8 +124,7 @@ where
     ) -> Result<u16, PacketParseError<E>> {
         let response =
             self.request_data(&[MICS_VZ_89TE_GET_CALIBR_VAL, 0, 0, 0, 0, 0xEF], delay)?;
-        let value = (response[1] as u16) << 8 | response[0] as u16;
-        Ok(value)
+        Ok(u16::from_le_bytes([response[0], response[1]]))
     }
 
     #[cfg(any(feature = "unproven", doc, test))]
