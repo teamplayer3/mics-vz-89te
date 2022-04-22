@@ -214,7 +214,7 @@ mod test {
         let mut device = MicsVz89Te::new(i2c);
         let measurements = device.read_measurements(&mut delay);
 
-        assert_matches!(measurements, Ok(_));
+        assert!(measurements.is_ok());
         let measurements = measurements.unwrap();
 
         assert_eq!(measurements.co2 as u32, 728);
@@ -248,16 +248,8 @@ mod test {
         let mut device = MicsVz89Te::new(i2c);
         let revision = device.read_revision(&mut delay);
 
-        assert_matches!(revision, Ok(_));
-        let revision = revision.unwrap();
-
-        assert_eq!(
-            revision,
-            RevisionDate {
-                year: 16,
-                month: 3,
-                day: 17
-            }
+        assert_matches!(
+                revision, Ok(r) if r == RevisionDate { year: 2016, month: 3, day: 17 }
         );
     }
 
@@ -269,7 +261,7 @@ mod test {
         let mut device = MicsVz89Te::new(i2c);
         let res = device.write_calibration_ppm(1000.0);
 
-        assert_matches!(res, Ok(_));
+        assert!(res.is_ok());
     }
 
     #[test]
@@ -284,9 +276,6 @@ mod test {
         let mut device = MicsVz89Te::new(i2c);
         let value = device.read_calibration_r0(&mut delay);
 
-        assert_matches!(value, Ok(_));
-        let value = value.unwrap();
-
-        assert_eq!(value, 507);
+        assert_matches!(value, Ok(v) if v == 507);
     }
 }
