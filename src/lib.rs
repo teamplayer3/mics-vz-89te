@@ -95,8 +95,8 @@ where
         let response =
             self.request_data(&[MICS_VZ_89TE_ADDR_CMD_GETSTATUS, 0, 0, 0, 0, 0xF3], delay)?;
 
-        let co2 = (response[1] - 13) as f32 * (1600.0 / 229.0) + 400.0; // ppm: 400 .. 2000
-        let voc = (response[0] - 13) as f32 * (1000.0 / 229.0); // ppb: 0 .. 1000
+        let co2 = f32::from(response[1] - 13) * (1600.0 / 229.0) + 400.0; // ppm: 400 .. 2000
+        let voc = f32::from(response[0] - 13) * (1000.0 / 229.0); // ppb: 0 .. 1000
 
         Ok(Measurements { co2, voc })
     }
@@ -108,7 +108,7 @@ where
     ) -> Result<RevisionDate, PacketParseError<E>> {
         let response = self.request_data(&[MICS_VZ_89TE_DATE_CODE, 0, 0, 0, 0, 0xF2], delay)?;
         let date = RevisionDate {
-            year: response[0],
+            year: u16::from(response[0]) + 2000,
             month: response[1],
             day: response[2],
         };
