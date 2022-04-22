@@ -20,8 +20,6 @@ let measurements = device.read_measurements(&mut delay).unwrap();
 
 let co2 = measurements.co2;
 let voc = measurements.voc;
+
+let i2c = device.release(); // destruct driver to use bus with other drivers
 ```
-
-## TODO
-
-* Add function to retrieve date code.
