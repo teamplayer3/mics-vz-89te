@@ -7,9 +7,11 @@ pub enum PacketParseError<E> {
 }
 
 #[cfg(feature = "std")]
+#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl<E> std::error::Error for PacketParseError<E> where E: std::error::Error {}
 
 #[cfg(feature = "std")]
+#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl<E> std::fmt::Display for PacketParseError<E>
 where
     E: std::error::Error,
