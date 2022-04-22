@@ -141,8 +141,7 @@ where
         cmd_array[5] = gen_checksum(&cmd_array[..5]);
         self.i2c
             .write(MICS_VZ_89TE_ADDR, &cmd_array)
-            .map_err(PacketParseError::from)?;
-        Ok(())
+            .map_err(PacketParseError::from)
     }
 
     fn request_data(
