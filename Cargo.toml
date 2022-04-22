@@ -7,7 +7,7 @@ repository = "https://github.com/teamplayer3/mics-vz-89te.git"
 description = "MICS-VZ-89TE driver implementation"
 keywords = ["embedded", "mics-vz-89te", "iot", "embedded-hal-driver", "co2-voc"]
 categories = ["embedded", "hardware-support", "no-std"]
-license = "Apache-2.0"
+license = "MIT OR Apache-2.0"
 readme = "README.md"
 
 [features]
