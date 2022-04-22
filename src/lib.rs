@@ -56,13 +56,26 @@ pub struct RevisionDate {
 }
 
 #[cfg(feature = "time")]
-impl From<time::Date> for RevisionDate {
-    fn from(d: time::Date) -> Self {
-        RevisionDate {
-            year: u16::try_from(d.year()).unwrap(),
+impl TryFrom<time::Date> for RevisionDate {
+    type Error = time::Error;
+
+    fn try_from(d: time::Date) -> Result<Self, Self::Error> {
+        Ok(RevisionDate {
+            year: u16::try_from(d.year())
+                .map_err(|_| time::Error::ConversionRange(time::error::ConversionRange))?,
             month: u8::from(d.month()),
             day: u8::from(d.day()),
-        }
+        })
+    }
+}
+
+#[cfg(feature = "time")]
+impl TryFrom<RevisionDate> for time::Date {
+    type Error = time::Error;
+
+    fn try_from(rd: RevisionDate) -> Result<Self, Self::Error> {
+        time::Date::from_calendar_date(i32::from(rd.year), time::Month::try_from(rd.month)?, rd.day)
+            .map_err(|e| time::Error::ComponentRange(e))
     }
 }
 
