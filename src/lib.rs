@@ -53,33 +53,13 @@ pub struct RevisionDate {
     pub day: u8,
 }
 
-impl RevisionDate {
-    /// Access the year of revision.
-    pub fn year(&self) -> u16 {
-        self.year as u16 + 2000
-    }
-}
-
-impl core::fmt::Debug for RevisionDate {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("RevisionDate")
-            .field("year", &((self.year as u16) + 2000))
-            .field("month", &self.month)
-            .field("day", &self.day)
-            .finish()
-    }
-}
-
-#[cfg(feature = "chrono")]
-impl From<chrono::NaiveDate> for RevisionDate {
-    fn from(d: chrono::NaiveDate) -> Self {
-        use chrono::Datelike;
-        let year = d.year() - 2000;
-        let year = if year < 0 { 0 } else { year as u8 };
+#[cfg(feature = "time")]
+impl From<time::Date> for RevisionDate {
+    fn from(d: time::Date) -> Self {
         RevisionDate {
-            year: year,
-            month: d.month() as u8,
-            day: d.day() as u8,
+            year: u16::try_from(d.year()).unwrap(),
+            month: u8::from(d.month()),
+            day: u8::from(d.day()),
         }
     }
 }
