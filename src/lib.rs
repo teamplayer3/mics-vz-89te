@@ -1,6 +1,5 @@
 #![cfg_attr(all(not(test), not(feature = "std")), no_std)]
-#![feature(assert_matches)]
-#![feature(doc_cfg)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 //! # Driver for MICS-VZ-89TE sensor
 //!
@@ -134,7 +133,7 @@ where
     }
 
     #[cfg(any(feature = "unproven", doc, test))]
-    #[doc(cfg(feature = "unproven"))]
+    #[cfg_attr(docsrs, doc(cfg(feature = "unproven")))]
     /// Read the calibration value R0 of the sensor in kOhms.
     pub fn read_calibration_r0(
         &mut self,
@@ -147,7 +146,7 @@ where
     }
 
     #[cfg(any(feature = "unproven", doc, test))]
-    #[doc(cfg(feature = "unproven"))]
+    #[cfg_attr(docsrs, doc(cfg(feature = "unproven")))]
     /// Writes the calibration CO2 value in ppm in range from 400 to 2000 measured by another device.
     pub fn write_calibration_ppm(&mut self, ppm: f32) -> Result<(), PacketParseError<E>> {
         debug_assert!(
@@ -209,15 +208,16 @@ fn gen_checksum(byte_array: &[u8]) -> u8 {
 #[cfg(test)]
 mod test {
 
-    use crate::RevisionDate;
+    use crate::{error::PacketParseError, RevisionDate};
 
-    use super::{MicsVz89Te, PacketParseError};
+    use super::MicsVz89Te;
+    use assert_matches::assert_matches;
     use core::assert_eq;
     use embedded_hal_mock::{
         delay::MockNoop as DelayMock,
         i2c::{Mock as I2cMock, Transaction as I2cTransaction},
     };
-    use std::{assert_matches::assert_matches, vec};
+    use std::vec;
 
     #[test]
     fn test_read_measurements() {
