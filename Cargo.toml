@@ -10,8 +10,15 @@ categories = ["embedded", "hardware-support", "no-std", "co2-measuring"]
 license = "Apache-2.0"
 readme = "README.md"
 
+[features]
+default = ["std"]
+chrono = ["dep:chrono"]
+unproven = []
+std = []
+
 [dependencies]
 embedded-hal = "0.2.7"
+chrono = { version = "0.4.19", optional = true }
 
 [dev-dependencies]
 embedded-hal-mock = "0.8.0"
