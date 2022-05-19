@@ -86,6 +86,14 @@ pub struct Measurements {
     pub voc: f32,
 }
 
+impl Measurements {
+    fn from_response(response: &[u8; 7]) -> Self {
+        let co2 = f32::from(response[1] - 13) * (1600.0 / 229.0) + 400.0; // ppm: 400 .. 2000
+        let voc = f32::from(response[0] - 13) * (1000.0 / 229.0); // ppb: 0 .. 1000
+        Self { co2, voc }
+    }
+}
+
 /// Driver for MICS-VZ-89TE sensor
 pub struct MicsVz89Te<I2C> {
     i2c: I2C,
@@ -95,26 +103,52 @@ impl<I2C, E> MicsVz89Te<I2C>
 where
     I2C: Read<Error = E> + Write<Error = E>,
 {
+    /// Time (in millis) to wait until the sensor response should be valid.
+    pub const WAIT_ON_RESPONSE_TIME: u16 = 100;
+
     /// Create new driver on the supplied i2c bus.
     pub fn new(i2c: I2C) -> Self {
         Self { i2c }
     }
 
     /// Read measurements from sensor.
+    ///
+    /// This function blocks a minimum time of [MicsVz89Te::WAIT_ON_RESPONSE_TIME].
     pub fn read_measurements(
         &mut self,
         delay: &mut impl DelayMs<u16>,
     ) -> Result<Measurements, PacketParseError<E>> {
         let response =
             self.request_data(&[MICS_VZ_89TE_ADDR_CMD_GETSTATUS, 0, 0, 0, 0, 0xF3], delay)?;
+        Ok(Measurements::from_response(&response))
+    }
 
-        let co2 = f32::from(response[1] - 13) * (1600.0 / 229.0) + 400.0; // ppm: 400 .. 2000
-        let voc = f32::from(response[0] - 13) * (1000.0 / 229.0); // ppb: 0 .. 1000
+    /// This function starts a measurement request and can be used in context where the delay on a response
+    /// has an specific implementation. For example in an async/await manner.
+    ///
+    /// To get a valid measurement result, a delay of [MicsVz89Te::WAIT_ON_RESPONSE_TIME] milliseconds should be implemented,
+    /// after calling this function.
+    ///
+    /// # Example Usage
+    /// implementation with [smol Timer](https://docs.rs/smol/latest/smol/struct.Timer.html)
+    /// ```ignore
+    /// driver.start_measurement().unwrap();
+    /// Timer::after(Duration::from_millis(u64::from(MicsVz89Te::WAIT_ON_RESPONSE_TIME))).await;
+    /// let measurements = driver.get_measurement_result().unwrap();
+    /// ```
+    pub fn start_measurement(&mut self) -> Result<(), PacketParseError<E>> {
+        self.send_request(&[MICS_VZ_89TE_ADDR_CMD_GETSTATUS, 0, 0, 0, 0, 0xF3])
+    }
 
-        Ok(Measurements { co2, voc })
+    /// Get the before requested measurements. To see an example, see [MicsVz89Te::start_measurement()].
+    pub fn get_measurement_result(&mut self) -> Result<Measurements, PacketParseError<E>> {
+        let response = self.receive_response()?;
+        Ok(Measurements::from_response(&response))
     }
 
     /// Read revision date of the sensor.
+    ///
+    /// This function blocks a minimum time of [MicsVz89Te::WAIT_ON_RESPONSE_TIME].
     pub fn read_revision(
         &mut self,
         delay: &mut impl DelayMs<u16>,
@@ -131,6 +165,8 @@ where
     #[cfg(any(feature = "unproven", doc, test))]
     #[cfg_attr(docsrs, doc(cfg(feature = "unproven")))]
     /// Read the calibration value R0 of the sensor in kOhms.
+    ///
+    /// This function blocks a minimum time of [MicsVz89Te::WAIT_ON_RESPONSE_TIME].
     pub fn read_calibration_r0(
         &mut self,
         delay: &mut impl DelayMs<u16>,
@@ -161,11 +197,18 @@ where
         cmd_buffer: &[u8; 6],
         delay: &mut impl DelayMs<u16>,
     ) -> Result<[u8; 7], PacketParseError<E>> {
+        self.send_request(cmd_buffer)?;
+        delay.delay_ms(Self::WAIT_ON_RESPONSE_TIME);
+        self.receive_response()
+    }
+
+    fn send_request(&mut self, cmd_buffer: &[u8; 6]) -> Result<(), PacketParseError<E>> {
         self.i2c
             .write(MICS_VZ_89TE_ADDR, cmd_buffer)
-            .map_err(PacketParseError::from)?;
-        delay.delay_ms(100);
+            .map_err(PacketParseError::from)
+    }
 
+    fn receive_response(&mut self) -> Result<[u8; 7], PacketParseError<E>> {
         let mut buffer = [0u8; 7];
         self.i2c.read(MICS_VZ_89TE_ADDR, &mut buffer)?;
 
