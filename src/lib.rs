@@ -238,7 +238,7 @@ impl<I2C> MicsVz89Te<I2C> {
 
 fn gen_checksum(byte_array: &[u8]) -> u8 {
     let sum = byte_array.iter().fold(0u16, |a, v| a + (*v as u16));
-    0xFF - (sum as u8 + (sum / 0x0100) as u8)
+    0xFF - (sum as u8).wrapping_add((sum / 0x0100) as u8)
 }
 
 #[cfg(test)]
