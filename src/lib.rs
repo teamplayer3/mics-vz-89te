@@ -88,8 +88,8 @@ pub struct Measurements {
 
 impl Measurements {
     fn from_response(response: &[u8; 7]) -> Self {
-        let co2 = f32::from(response[1] - 13) * (1600.0 / 229.0) + 400.0; // ppm: 400 .. 2000
-        let voc = f32::from(response[0] - 13) * (1000.0 / 229.0); // ppb: 0 .. 1000
+        let co2 = f32::from(response[1].saturating_sub(13)) * (1600.0 / 229.0) + 400.0; // ppm: 400 .. 2000
+        let voc = f32::from(response[0].saturating_sub(13)) * (1000.0 / 229.0); // ppb: 0 .. 1000
         Self { co2, voc }
     }
 }
